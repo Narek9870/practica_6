@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'routes.dart'; // Подключаем наши адреса
+import 'package:flutter_bloc/flutter_bloc.dart'; // ПОДКЛЮЧИЛИ БИБЛИОТЕКУ
+import 'routes.dart';
 
-// Подключаем все экраны
+// Подключаем наши экраны и BLoC
 import 'pages/loading_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/home_page.dart';
 import 'pages/detail_page.dart';
 import 'pages/profile_page.dart';
+import 'pages/bloc/dbms_bloc.dart'; // НАШ BLOC
 
 void main() {
   runApp(const MyApp());
@@ -20,15 +22,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // 1. Стартовый экран по умолчанию - Заставка
       initialRoute: Routes.loading,
-
-      // 2. Карта маршрутов (словарь путей)
       routes: {
         Routes.loading: (context) => const LoadingPage(),
         Routes.login: (context) => const LoginPage(),
         Routes.register: (context) => const RegisterPage(),
-        Routes.home: (context) => const HomePage(),
+
+        // Оборачиваем HomePage в BlocProvider и сразу отправляем событие загрузки
+        Routes.home: (context) => BlocProvider(
+          create: (_) => DbmsBloc()..add(const LoadDbmsEvent()),
+          child: const HomePage(),
+        ),
+
         Routes.detail: (context) => const DetailPage(),
         Routes.profile: (context) => const ProfilePage(),
       },
