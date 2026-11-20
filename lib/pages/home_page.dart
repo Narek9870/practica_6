@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import '../routes.dart';
 import 'profile_page.dart';
-import 'package:flutter/foundation.dart';
+import 'bloc/dbms_bloc.dart'; // Подключаем BLoC
+import '../models/dbms.dart'; // Подключаем модель
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,25 +14,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Индекс для нижнего меню (0 - Главная, 1 - Профиль)
   int _selectedIndex = 0;
 
-  // Наши экраны для переключения в меню
   final List<Widget> _screens = [
-    const _DbmsListContent(), // Наш список СУБД
-    const ProfilePage(),      // Ваш экран профиля
+    const _DbmsListContent(),
+    const ProfilePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // IndexedStack позволяет переключать экраны без потери их состояния
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
       ),
-
-      // Нижнее меню
       bottomNavigationBar: NavigationBar(
         backgroundColor: Colors.lightGreenAccent.shade100,
         indicatorColor: Colors.lightGreenAccent,
@@ -56,29 +54,18 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-
-// ВНУТРЕННИЙ КЛАСС: САМ СПИСОК СУБД (АДАПТИВНЫЙ И ПЛАТФОРМОЗАВИСИМЫЙ)
 class _DbmsListContent extends StatelessWidget {
   const _DbmsListContent();
 
-  final List<Map<String, String>> dbmsList = const [
-    {'name': '1. PostgreSQL', 'desc': 'Мощная объектно-реляционная СУБД'},
-    {'name': '2. MySQL', 'desc': 'Самая популярная СУБД для веб-сайтов'},
-    {'name': '3. Oracle DB', 'desc': 'Надежная корпоративная база данных'},
-    {'name': '4. MongoDB', 'desc': 'Документоориентированная NoSQL БД'},
-    {'name': '5. Redis', 'desc': 'СУБД типа "ключ-значение" в памяти'},
-  ];
-
   @override
   Widget build(BuildContext context) {
-    //АДАПТИВНЫЕ ОТСТУПЫ
     final double platformPadding =
     (kIsWeb ||
         defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS ||
         defaultTargetPlatform == TargetPlatform.linux)
-        ? 50.0  // Если это Браузер или ПК - отступ 50
-        : 20.0; // Если это Телефон - отступ 20
+        ? 50.0
+        : 20.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,86 +73,104 @@ class _DbmsListContent extends StatelessWidget {
         backgroundColor: Colors.lightGreenAccent,
         centerTitle: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Проверяем ширину экрана для сетки
-          bool isWideScreen = constraints.maxWidth > 600;
+      // BLOC BUILDER
+      body: BlocBuilder<DbmsBloc, DbmsState>(
+        builder: (context, state) {
+          // 1. СОСТОЯНИЕ: СТАРТ
+          if (state is DbmsInitial) {
+            return const Center(child: Text('Ожидание загрузки данных...'));
+          }
+          //СОСТОЯНИЕ: ЗАГРУЗКА
+          else if (state is DbmsLoading) {
+            return const Center(child: CircularProgressIndicator()); // Крутящийся индикатор
+          }
+          //СОСТОЯНИЕ: ОШИБКА
+          else if (state is DbmsError) {
+            return Center(child: Text(state.message));
+          }
+          //СОСТОЯНИЕ: ДАННЫЕ УСПЕШНО ЗАГРУЖЕНЫ
+          else if (state is DbmsLoaded) {
+            final dbmsList = state.dbmsList; // Получаем наши данные из BLoC
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Карусель картинок
-                SizedBox(
-                  height: 100,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    separatorBuilder: (_, __) => const SizedBox(width: 16),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 140,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 1.5),
-                          borderRadius: BorderRadius.circular(15.0),
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                bool isWideScreen = constraints.maxWidth > 600;
+
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: 100,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: dbmsList.length, // Берем из BLoC
+                          separatorBuilder: (_, __) => const SizedBox(width: 16),
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 140,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black, width: 1.5),
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(13.0),
+                                child: Image.asset(dbmsList[index].imagePath, fit: BoxFit.cover),
+                              ),
+                            );
+                          },
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(13.0),
-                          child: Image.asset('assets/images/${index + 1}.png', fit: BoxFit.cover),
+                      ),
+                      SizedBox(height: platformPadding),
+                      Expanded(
+                        child: isWideScreen
+                            ? GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 3,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                          ),
+                          itemCount: dbmsList.length, // Берем из BLoC
+                          itemBuilder: (context, index) => _buildCard(context, index, dbmsList),
+                        )
+                            : ListView.builder(
+                          itemCount: dbmsList.length, // Берем из BLoC
+                          itemBuilder: (context, index) => _buildCard(context, index, dbmsList),
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ),
+                );
+              },
+            );
+          }
 
-                //ПРИМЕНЯЕМ НАШ ПЛАТФОРМЕННЫЙ ОТСТУП
-                SizedBox(height: platformPadding),
-
-                // АДАПТИВНЫЙ СПИСОК
-                Expanded(
-                  child: isWideScreen
-                      ? GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemCount: dbmsList.length,
-                    itemBuilder: (context, index) => _buildCard(context, index),
-                  )
-                      : ListView.builder(
-                    itemCount: dbmsList.length,
-                    itemBuilder: (context, index) => _buildCard(context, index),
-                  ),
-                ),
-              ],
-            ),
-          );
+          return const SizedBox.shrink(); // Заглушка, если ничего не подошло
         },
       ),
     );
   }
 
-  // Метод для создания карточки
-  Widget _buildCard(BuildContext context, int index) {
+  // Обновили метод карточки, теперь он принимает данные (List<Dbms>)
+  Widget _buildCard(BuildContext context, int index, List<Dbms> dbmsList) {
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
         leading: const Icon(Icons.storage, color: Colors.blue, size: 30),
-        title: Text(dbmsList[index]['name']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(dbmsList[index]['desc']!),
+        title: Text(dbmsList[index].name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(dbmsList[index].desc),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
           Navigator.pushNamed(
             context,
             Routes.detail,
             arguments: {
-              'name': dbmsList[index]['name'],
-              'desc': dbmsList[index]['desc'],
-              'image': 'assets/images/${index + 1}.png',
+              'name': dbmsList[index].name,
+              'desc': dbmsList[index].desc,
+              'image': dbmsList[index].imagePath,
             },
           );
         },
