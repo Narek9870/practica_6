@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // ПОДКЛЮЧИЛИ БИБЛИОТЕКУ
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'routes.dart';
+import 'di.dart'; // ПОДКЛЮЧАЕМ НАШ DI-КОНТЕЙНЕР
 
-// Подключаем наши экраны и BLoC
 import 'pages/loading_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/home_page.dart';
 import 'pages/detail_page.dart';
 import 'pages/profile_page.dart';
-import 'pages/bloc/dbms_bloc.dart'; // НАШ BLOC
+import 'pages/bloc/dbms_bloc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Обязательно для работы с локальной БД
+  setupDI(); // Запускаем DI-контейнер перед стартом приложения
+
   runApp(const MyApp());
 }
 
@@ -28,9 +31,9 @@ class MyApp extends StatelessWidget {
         Routes.login: (context) => const LoginPage(),
         Routes.register: (context) => const RegisterPage(),
 
-        // Оборачиваем HomePage в BlocProvider и сразу отправляем событие загрузки
+        // БЕРЕМ BLOC ИЗ КОНТЕЙНЕРА (getIt)
         Routes.home: (context) => BlocProvider(
-          create: (_) => DbmsBloc()..add(const LoadDbmsEvent()),
+          create: (_) => getIt<DbmsBloc>()..add(const LoadDbmsEvent()),
           child: const HomePage(),
         ),
 
