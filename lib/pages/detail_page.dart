@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// ИМПОРТ КНОПКИ ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+import '../theme/theme_toggle_action.dart';
+
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key});
 
@@ -9,14 +12,15 @@ class DetailPage extends StatelessWidget {
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           args['name'],
           style: const TextStyle(fontFamily: 'CustomFont'),
         ),
-        backgroundColor: Colors.lightGreenAccent,
         centerTitle: true,
+        actions: const [
+          ThemeToggleAction(), // кнопка переключение темы
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -28,7 +32,7 @@ class DetailPage extends StatelessWidget {
               height: 200,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 1.5),
+                border: Border.all(color: Colors.grey, width: 1.5),
                 borderRadius: BorderRadius.circular(15.0),
               ),
               child: Image.asset(
@@ -42,7 +46,7 @@ class DetailPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 1.5),
+                border: Border.all(color: Colors.grey, width: 1.5),
               ),
               child: Text(
                 args['desc'],

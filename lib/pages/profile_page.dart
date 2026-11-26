@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/text_field.dart';
 
+// ИМПОРТ КНОПКИ ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+import '../theme/theme_toggle_action.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -42,19 +44,18 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         title: const Text(
           'Профиль',
           style: TextStyle(
-            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
         ),
         centerTitle: false,
+        actions: const [
+          ThemeToggleAction(), // кнопка переключение темы
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -70,8 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       // Круглая фотография (аватар)
                       const CircleAvatar(
                         radius: 50,
-                    backgroundImage: AssetImage('assets/images/1.png', // Красивая картинка
-                        ),
+                        backgroundImage: AssetImage('assets/images/1.png'),
                       ),
                       // Маленький кружочек с иконкой камеры поверх фото
                       Positioned(
@@ -80,11 +80,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).scaffoldBackgroundColor, // Берет цвет фона (белый или темный)
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.grey.shade300),
                           ),
-                          child: const Icon(Icons.camera_alt, size: 20, color: Colors.black54),
+                          child: Icon(Icons.camera_alt, size: 20, color: Theme.of(context).iconTheme.color), // Цвет иконки из темы
                         ),
                       ),
                     ],
@@ -137,18 +137,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 30),
 
-                //Черная кнопка "Сохранить"
+                // Черная кнопка "Сохранить"
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
                     onPressed: _submit,
                     child: const Text('Сохранить', style: TextStyle(fontSize: 16)),
                   ),

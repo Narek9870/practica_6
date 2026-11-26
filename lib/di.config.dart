@@ -15,6 +15,7 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:practica_1/data/database.dart' as _i1040;
 import 'package:practica_1/data/dbms_repository.dart' as _i9;
 import 'package:practica_1/pages/bloc/dbms_bloc.dart' as _i687;
+import 'package:practica_1/theme/theme_cubit.dart' as _i398;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -23,6 +24,7 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    gh.factory<_i398.ThemeCubit>(() => _i398.ThemeCubit());
     gh.lazySingleton<_i1040.AppDatabase>(() => _i1040.AppDatabase());
     gh.lazySingleton<_i9.DbmsRepository>(
       () => _i9.DbmsRepository(gh<_i1040.AppDatabase>()),
