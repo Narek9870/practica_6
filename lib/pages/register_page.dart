@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../widgets/text_field.dart';
 import '../routes.dart';
 
-
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -43,7 +42,6 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
@@ -58,7 +56,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -113,13 +110,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
                     onPressed: _submit,
                     child: const Text('Зарегистрироваться', style: TextStyle(fontSize: 16)),
                   ),
@@ -129,18 +119,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 //Ссылка снизу на вход
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, Routes.login
-                    );
+                    Navigator.pushReplacementNamed(context, Routes.login);
                   },
                   child: RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       text: 'Уже есть аккаунт? ',
-                      style: TextStyle(color: Colors.black54, fontSize: 14),
-                      children: [
+                      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color, fontSize: 14), // АДАПТИВНЫЙ ЦВЕТ
+                      children: const [
                         TextSpan(
                           text: 'Войдите',
                           style: TextStyle(
-                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

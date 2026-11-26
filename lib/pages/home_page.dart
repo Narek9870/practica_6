@@ -6,6 +6,9 @@ import 'profile_page.dart';
 import 'bloc/dbms_bloc.dart'; // Подключаем BLoC
 import '../models/dbms.dart'; // Подключаем модель
 
+// ИМПОРТ КНОПКИ ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+import '../theme/theme_toggle_action.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -29,8 +32,6 @@ class _HomePageState extends State<HomePage> {
         children: _screens,
       ),
       bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.lightGreenAccent.shade100,
-        indicatorColor: Colors.lightGreenAccent,
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
           setState(() {
@@ -70,8 +71,10 @@ class _DbmsListContent extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('СИСТЕМЫ СУБД', style: TextStyle(fontFamily: 'CustomFont')),
-        backgroundColor: Colors.lightGreenAccent,
         centerTitle: true,
+        actions: const [
+          ThemeToggleAction(), // кнопка переключение темы
+        ],
       ),
       // BLOC BUILDER
       body: BlocBuilder<DbmsBloc, DbmsState>(
@@ -106,12 +109,12 @@ class _DbmsListContent extends StatelessWidget {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: dbmsList.length, // Берем из BLoC
-                          separatorBuilder: (_, __) => const SizedBox(width: 16),
+                          separatorBuilder: (_, _) => const SizedBox(width: 16),
                           itemBuilder: (context, index) {
                             return Container(
                               width: 140,
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black, width: 1.5),
+                                border: Border.all(color: Colors.grey, width: 1.5),
                                 borderRadius: BorderRadius.circular(15.0),
                               ),
                               child: ClipRRect(
@@ -156,10 +159,9 @@ class _DbmsListContent extends StatelessWidget {
   // Обновили метод карточки, теперь он принимает данные (List<Dbms>)
   Widget _buildCard(BuildContext context, int index, List<Dbms> dbmsList) {
     return Card(
-      elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        leading: const Icon(Icons.storage, color: Colors.blue, size: 30),
+        leading: const Icon(Icons.storage, size: 30),
         title: Text(dbmsList[index].name, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(dbmsList[index].desc),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'routes.dart';
-import 'di.dart'; // ПОДКЛЮЧАЕМ НАШ DI-КОНТЕЙНЕР
+import 'di.dart';
 
 import 'pages/loading_page.dart';
 import 'pages/login_page.dart';
@@ -11,9 +11,12 @@ import 'pages/detail_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/bloc/dbms_bloc.dart';
 
+import 'theme/theme_cubit.dart';
+import 'theme/app_theme.dart';
+
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Обязательно для работы с локальной БД
-  setupDI(); // Запускаем DI-контейнер перед стартом приложения
+  WidgetsFlutterBinding.ensureInitialized();
+  setupDI();
 
   runApp(const MyApp());
 }
@@ -23,23 +26,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: Routes.loading,
-      routes: {
-        Routes.loading: (context) => const LoadingPage(),
-        Routes.login: (context) => const LoginPage(),
-        Routes.register: (context) => const RegisterPage(),
+    return BlocProvider(
+      create: (_) => getIt<ThemeCubit>(),
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
 
-        // БЕРЕМ BLOC ИЗ КОНТЕЙНЕРА (getIt)
-        Routes.home: (context) => BlocProvider(
-          create: (_) => getIt<DbmsBloc>()..add(const LoadDbmsEvent()),
-          child: const HomePage(),
-        ),
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: themeMode,
 
-        Routes.detail: (context) => const DetailPage(),
-        Routes.profile: (context) => const ProfilePage(),
-      },
+            initialRoute: Routes.loading,
+            routes: {
+              Routes.loading: (context) => const LoadingPage(),
+              Routes.login: (context) => const LoginPage(),
+              Routes.register: (context) => const RegisterPage(),
+              Routes.home: (context) => BlocProvider(
+                create: (_) => getIt<DbmsBloc>()..add(const LoadDbmsEvent()),
+                child: const HomePage(),
+              ),
+              Routes.detail: (context) => const DetailPage(),
+              Routes.profile: (context) => const ProfilePage(),
+            },
+          );
+        },
+      ),
     );
   }
 }

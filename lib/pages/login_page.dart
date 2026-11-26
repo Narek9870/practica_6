@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../widgets/text_field.dart';
 import '../routes.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -37,15 +36,13 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacementNamed(context, Routes.home
-      );
+      Navigator.pushReplacementNamed(context, Routes.home);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         // SingleChildScrollView спасает от ошибки переполнения при открытии клавиатуры
         child: SingleChildScrollView(
@@ -61,7 +58,6 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
                     height: 1.3,
                   ),
                 ),
@@ -96,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {},
                     child: const Text(
                       'Забыли пароль?',
-                      style: TextStyle(color: Colors.black54, fontSize: 13),
+                      style: TextStyle(fontSize: 13),
                     ),
                   ),
                 ),
@@ -107,13 +103,6 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
                     onPressed: _submit,
                     child: const Text('Войти', style: TextStyle(fontSize: 16)),
                   ),
@@ -123,18 +112,17 @@ class _LoginPageState extends State<LoginPage> {
                 //Текст снизу со ссылкой на регистрацию
                 Center(
                   child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, Routes.register); // пускаем на регистрацию
+                    onTap: () {
+                      Navigator.pushNamed(context, Routes.register); // пускаем на регистрацию
                     },
                     child: RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         text: 'Нет аккаунта? ',
-                        style: TextStyle(color: Colors.black54, fontSize: 14),
-                        children: [
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color, fontSize: 14), // АДАПТИВНЫЙ ЦВЕТ
+                        children: const [
                           TextSpan(
                             text: 'Зарегистрируйтесь',
                             style: TextStyle(
-                              color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

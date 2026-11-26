@@ -3,46 +3,40 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:injectable/injectable.dart';
 
-// Этот файл сгенерируется автоматически чуть позже, пока будет светиться красным!
 part 'database.g.dart';
 
-//ОПИСЫВАЕМ ТАБЛИЦУ (Как в SQL)
-@DataClassName('DbmsRow') // Чтобы имя не конфликтовало с нашей моделью Dbms
+@DataClassName('DbmsRow')
 class DbmsTable extends Table {
-  IntColumn get id => integer().autoIncrement()(); // Уникальный ID
-  TextColumn get name => text()();                 // Название
-  TextColumn get desc => text()();                 // Описание
-  TextColumn get imagePath => text()();            // Путь к картинке
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get desc => text()();
+  TextColumn get imagePath => text()();
 }
 
-//ФУНКЦИЯ ОТКРЫТИЯ СОЕДИНЕНИЯ С ФАЙЛОМ БАЗЫ НА ТЕЛЕФОНЕ
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     return driftDatabase(
-      name: 'dbms_drift.db', // Так будет называться файл в памяти телефона
+      name: 'dbms_drift.db',
       native: const DriftNativeOptions(
-        databaseDirectory: getApplicationSupportDirectory, // Системная папка
+        databaseDirectory: getApplicationSupportDirectory,
       ),
     );
   });
 }
 
-//САМА БАЗА ДАННЫХ
-@lazySingleton // Аннотация для DI-контейнера (создастся только когда понадобится)
+@lazySingleton
 @DriftDatabase(tables: [DbmsTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1; // Версия базы данных
+  int get schemaVersion => 1;
 
-  //СТРАТЕГИЯ МИГРАЦИЙ И ПЕРВИЧНОЕ ЗАПОЛНЕНИЕ
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
-      await m.createAll(); // Создаем пустую таблицу
+      await m.createAll();
 
-      // Сразу заполняем её стартовыми данными (batch - выполнение за один проход)
       await batch((batch) {
         batch.insertAll(dbmsTable, [
           DbmsTableCompanion.insert(
